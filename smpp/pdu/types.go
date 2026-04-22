@@ -346,6 +346,63 @@ func NewDeliverSMRespSeq(seq uint32) Body {
 	return b
 }
 
+// DataSM PDU.
+type DataSM struct{ *codec }
+
+func newDataSM(hdr *Header) *codec {
+	return &codec{
+		h: hdr,
+		l: pdufield.List{
+			pdufield.ServiceType,
+			pdufield.SourceAddrTON,
+			pdufield.SourceAddrNPI,
+			pdufield.SourceAddr,
+			pdufield.DestAddrTON,
+			pdufield.DestAddrNPI,
+			pdufield.DestinationAddr,
+			pdufield.ESMClass,
+			pdufield.RegisteredDelivery,
+			pdufield.DataCoding,
+		},
+	}
+}
+
+// NewDataSM creates and initializes a new DataSM PDU.
+func NewDataSM(fields pdutlv.Fields) Body {
+	b := newDataSM(&Header{ID: DataSMID})
+	b.init()
+	for tag, value := range fields {
+		b.t.Set(tag, value)
+	}
+	return b
+}
+
+// DataSMResp PDU.
+type DataSMResp struct{ *codec }
+
+func newDataSMResp(hdr *Header) *codec {
+	return &codec{
+		h: hdr,
+		l: pdufield.List{
+			pdufield.MessageID,
+		},
+	}
+}
+
+// NewDataSMResp creates and initializes a new DataSMResp PDU.
+func NewDataSMResp() Body {
+	b := newDataSMResp(&Header{ID: DataSMRespID})
+	b.init()
+	return b
+}
+
+// NewDataSMRespSeq creates and initializes a new DataSMResp PDU for a specific seq.
+func NewDataSMRespSeq(seq uint32) Body {
+	b := newDataSMResp(&Header{ID: DataSMRespID, Seq: seq})
+	b.init()
+	return b
+}
+
 // Unbind PDU.
 type Unbind struct{ *codec }
 

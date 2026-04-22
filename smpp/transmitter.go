@@ -128,9 +128,11 @@ func (t *Transmitter) handlePDU(f HandlerFunc) {
 		} else if f != nil {
 			f(p)
 		}
-		if p.Header().ID == pdu.DeliverSMID { // Send DeliverSMResp
-			pResp := pdu.NewDeliverSMRespSeq(p.Header().Seq)
-			t.cl.Write(pResp)
+		switch p.Header().ID {
+		case pdu.DeliverSMID:
+			t.cl.Write(pdu.NewDeliverSMRespSeq(p.Header().Seq))
+		case pdu.DataSMID:
+			t.cl.Write(pdu.NewDataSMRespSeq(p.Header().Seq))
 		}
 	}
 	t.tx.Lock()

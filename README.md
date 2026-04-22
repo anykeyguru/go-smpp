@@ -1,6 +1,6 @@
 # SMPP 3.4
 
-[![GoDoc](https://godoc.org/github.com/fiorix/go-smpp?status.svg)](https://godoc.org/github.com/fiorix/go-smpp) [![Go Report Card](https://goreportcard.com/badge/github.com/fiorix/go-smpp)](https://goreportcard.com/report/github.com/fiorix/go-smpp) [![Build Status](https://secure.travis-ci.org/fiorix/go-smpp.png)](https://travis-ci.org/fiorix/go-smpp)
+[![Go Reference](https://pkg.go.dev/badge/github.com/fiorix/go-smpp/v2.svg)](https://pkg.go.dev/github.com/fiorix/go-smpp/v2) [![Go Report Card](https://goreportcard.com/badge/github.com/fiorix/go-smpp)](https://goreportcard.com/report/github.com/fiorix/go-smpp) [![CI](https://github.com/fiorix/go-smpp/actions/workflows/ci.yml/badge.svg)](https://github.com/fiorix/go-smpp/actions/workflows/ci.yml)
 
 This is an implementation of SMPP 3.4 for Go, based on the original
 [smpp34](https://github.com/CodeMonkeyKevin/smpp34) from Kevin Patel.

@@ -142,6 +142,17 @@ func (t *Transmitter) handlePDU(f HandlerFunc) {
 	t.tx.Unlock()
 }
 
+// Write sends a PDU to the SMSC. It can be used to send
+// arbitrary PDUs such as GenericNACK from within a handler.
+func (t *Transmitter) Write(p pdu.Body) error {
+	t.cl.Lock()
+	defer t.cl.Unlock()
+	if t.cl.client == nil {
+		return ErrNotConnected
+	}
+	return t.cl.Write(p)
+}
+
 // Close implements the ClientConn interface.
 func (t *Transmitter) Close() error {
 	t.cl.Lock()

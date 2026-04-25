@@ -45,6 +45,65 @@ func TestReceiver(t *testing.T) {
 	}
 }
 
+// TestClientAutoRespondsToUnbind asserts that an unbind sent by the
+// SMSC is acknowledged with unbind_resp and the connection transitions
+// to Disconnected (and is then automatically reconnected by the client
+// retry loop).
+func TestClientAutoRespondsToUnbind(t *testing.T) {
+	gotUnbindResp := make(chan struct{}, 1)
+	s := smpptest.NewUnstartedServer()
+	s.Handler = func(c smpptest.Conn, p pdu.Body) {
+		if p.Header().ID == pdu.UnbindRespID {
+			select {
+			case gotUnbindResp <- struct{}{}:
+			default:
+			}
+		}
+	}
+	s.Start()
+	defer s.Close()
+
+	rc := make(chan ConnStatus, 8)
+	r := &Receiver{
+		Addr:    s.Addr(),
+		User:    smpptest.DefaultUser,
+		Passwd:  smpptest.DefaultPasswd,
+		Handler: func(p pdu.Body) {},
+	}
+	defer r.Close()
+	go func() {
+		for c := range r.Bind() {
+			rc <- c
+		}
+	}()
+
+	// Wait for initial Connected before nudging.
+	waitFor := func(want ConnStatusID) {
+		t.Helper()
+		deadline := time.After(2 * time.Second)
+		for {
+			select {
+			case c := <-rc:
+				if c.Status() == want {
+					return
+				}
+			case <-deadline:
+				t.Fatalf("timed out waiting for status %s", want)
+			}
+		}
+	}
+	waitFor(Connected)
+
+	s.BroadcastMessage(pdu.NewUnbind())
+
+	select {
+	case <-gotUnbindResp:
+	case <-time.After(2 * time.Second):
+		t.Fatal("server did not receive unbind_resp")
+	}
+	waitFor(Disconnected)
+}
+
 // TestReceiverNoHandlerDoesNotBlock guards against a regression where
 // a Receiver bound without a Handler deadlocked the client read loop
 // on the first inbound PDU because nothing drained the inbox channel.

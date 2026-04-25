@@ -161,6 +161,13 @@ func (c *client) Bind() {
 				}
 			case pdu.EnquireLinkRespID:
 				c.updateEliTime()
+			case pdu.UnbindID:
+				// Server is asking us to disconnect. Acknowledge
+				// and let the read loop tear down so the
+				// reconnect path takes over.
+				c.conn.Write(pdu.NewUnbindRespSeq(p.Header().Seq))
+				c.notify(&connStatus{s: Disconnected})
+				c.conn.Close()
 			default:
 				c.inbox <- p
 			}

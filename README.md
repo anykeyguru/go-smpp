@@ -89,7 +89,7 @@ For an HTTP API server built on top of this library, see
 - [x] bind_receiver_resp
 - [x] bind_transceiver
 - [x] bind_transceiver_resp
-- [ ] outbind
+- [x] outbind
 - [x] unbind
 - [x] unbind_resp
 - [x] submit_sm
@@ -102,13 +102,13 @@ For an HTTP API server built on top of this library, see
 - [x] deliver_sm_resp
 - [x] query_sm
 - [x] query_sm_resp
-- [ ] cancel_sm
-- [ ] cancel_sm_resp
-- [ ] replace_sm
-- [ ] replace_sm_resp
+- [x] cancel_sm
+- [x] cancel_sm_resp
+- [x] replace_sm
+- [x] replace_sm_resp
 - [x] enquire_link
 - [x] enquire_link_resp
-- [ ] alert_notification
+- [x] alert_notification
 - [x] generic_nack
 - [x] tag-length-value (TLV)
 

@@ -17,23 +17,23 @@ import (
 
 // Receiver implements an SMPP client receiver.
 type Receiver struct {
-	Addr                 string
-	User                 string
-	Passwd               string
-	SystemType           string
-	EnquireLink          time.Duration
-	EnquireLinkTimeout   time.Duration // Time after last EnquireLink response when connection considered down
-	BindInterval         time.Duration // Binding retry interval
-	MergeInterval        time.Duration // Time in which Receiver waits for the parts of the long messages
-	MergeCleanupInterval time.Duration // How often to cleanup expired message parts
-	TLS                  *tls.Config
-	Handler              HandlerFunc
-	SkipAutoRespondIDs   []pdu.ID
+	Addr                 string        // Server address in form of host:port.
+	User                 string        // Username.
+	Passwd               string        // Password.
+	SystemType           string        // System type, default empty.
+	EnquireLink          time.Duration // Enquire link interval, default 10s.
+	EnquireLinkTimeout   time.Duration // Max time without an EnquireLink response before the connection is considered down.
+	BindInterval         time.Duration // Bind retry interval. If zero, an exponential backoff is used.
+	MergeInterval        time.Duration // Time to wait for the remaining parts of a multi-part SM. If zero, merging is disabled.
+	MergeCleanupInterval time.Duration // How often to evict expired partial messages. Defaults to 1s when MergeInterval > 0.
+	TLS                  *tls.Config   // TLS client settings, optional.
+	Handler              HandlerFunc   // Called for each incoming PDU.
+	SkipAutoRespondIDs   []pdu.ID      // PDU IDs for which the auto-response is suppressed.
 
 	chanClose chan struct{}
 
-	// struct which holds the map of MergeHolders for the merging of the long incoming messages.
-	// It is used only if the incoming PDU holds UDH data and Receiver has MergeInterval > 0.
+	// State used to merge multi-part incoming messages. Populated only
+	// when MergeInterval > 0 and an incoming PDU carries a UDH.
 	mg struct {
 		mergeHolders map[int]*MergeHolder
 		sync.Mutex

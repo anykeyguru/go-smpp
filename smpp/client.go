@@ -93,13 +93,13 @@ type client struct {
 	WindowSize         uint
 	RateLimiter        RateLimiter
 
-	// internal stuff.
 	inbox chan pdu.Body
 	conn  *connSwitch
 	stop  chan struct{}
 	once  sync.Once
 	lmctx context.Context
-	// time of the last received EnquireLinkResp
+	// Time of the last received enquire_link_resp, used to detect a
+	// dead connection. Guarded by eliMtx.
 	eliTime time.Time
 	eliMtx  sync.RWMutex
 }

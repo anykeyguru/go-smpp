@@ -17,8 +17,7 @@ type Body interface {
 	SerializeTo(w io.Writer) error
 }
 
-// NewTLV parses the given binary data and returns a Data object,
-// or nil if the field Name is unknown.
+// NewTLV returns a Body that wraps the given tag and raw value.
 func NewTLV(tag Tag, value []byte) Body {
-	return &Field{ Tag: tag, Data: value }
+	return &Field{Tag: tag, Data: value}
 }

@@ -52,7 +52,7 @@ const (
 	ValidityPeriod       Name = "validity_period"
 )
 
-// Fixed is a PDU of fixed length.
+// Fixed is a PDU field of fixed length (one byte).
 type Fixed struct {
 	Data uint8
 }

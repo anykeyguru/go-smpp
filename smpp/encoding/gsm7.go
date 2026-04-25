@@ -1,3 +1,7 @@
+// Copyright 2015 go-smpp authors. All rights reserved.
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
+
 package encoding
 
 import (
@@ -19,11 +23,8 @@ var ErrInvalidCharacter = errors.New("invalid gsm7 character")
 // This can only happen during decoding.
 var ErrInvalidByte = errors.New("invalid gsm7 byte")
 
-/*
-GSM 7-bit default alphabet and extension table
-
-Source: https://en.wikipedia.org/wiki/GSM_03.38#GSM_7-bit_default_alphabet_and_extension_table_of_3GPP_TS_23.038_/_GSM_03.38
-*/
+// GSM 7-bit default alphabet and extension table.
+// Source: https://en.wikipedia.org/wiki/GSM_03.38#GSM_7-bit_default_alphabet_and_extension_table_of_3GPP_TS_23.038_/_GSM_03.38
 const escapeSequence = 0x1B
 
 var forwardLookup = map[rune]byte{
@@ -69,7 +70,8 @@ var reverseEscape = map[byte]rune{
 	0x0A: '\f', 0x14: '^', 0x28: '{', 0x29: '}', 0x2F: '\\', 0x3C: '[', 0x3D: '~', 0x3E: ']', 0x40: '|', 0x65: '€',
 }
 
-// Returns the characters, in the given text, that can not be represented in GSM 7-bit encoding.
+// ValidateGSM7String returns the characters in the given text that
+// cannot be represented in GSM 7-bit encoding.
 func ValidateGSM7String(text string) []rune {
 	invalidChars := make([]rune, 0, 4)
 	for _, r := range text {
@@ -82,7 +84,8 @@ func ValidateGSM7String(text string) []rune {
 	return invalidChars
 }
 
-// Returns the bytes, in the given buffer, that are outside of the GSM 7-bit encoding range.
+// ValidateGSM7Buffer returns the bytes in the given buffer that are
+// outside of the GSM 7-bit encoding range.
 func ValidateGSM7Buffer(buffer []byte) []byte {
 	invalidBytes := make([]byte, 0, 4)
 	count := 0
@@ -142,7 +145,7 @@ type gsm7Decoder struct {
 }
 
 func (g *gsm7Decoder) Reset() {
-	/* not needed */
+	// not needed
 }
 
 func (g *gsm7Decoder) Transform(dst, src []byte, atEOF bool) (nDst, nSrc int, err error) {
@@ -253,7 +256,7 @@ type gsm7Encoder struct {
 }
 
 func (g *gsm7Encoder) Reset() {
-	/* no needed */
+	// not needed
 }
 
 func (g *gsm7Encoder) Transform(dst, src []byte, atEOF bool) (nDst, nSrc int, err error) {

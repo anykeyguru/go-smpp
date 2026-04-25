@@ -23,13 +23,13 @@ type Transceiver struct {
 	Passwd             string        // Password.
 	SystemType         string        // System type, default empty.
 	EnquireLink        time.Duration // Enquire link interval, default 10s.
-	EnquireLinkTimeout time.Duration // Time after last EnquireLink response when connection considered down
+	EnquireLinkTimeout time.Duration // Max time without an EnquireLink response before the connection is considered down.
 	RespTimeout        time.Duration // Response timeout, default 1s.
-	BindInterval       time.Duration // Binding retry interval
+	BindInterval       time.Duration // Bind retry interval. If zero, an exponential backoff is used.
 	TLS                *tls.Config   // TLS client settings, optional.
-	Handler            HandlerFunc   // Receiver handler, optional.
+	Handler            HandlerFunc   // Handler for unsolicited PDUs (e.g. deliver_sm), optional.
 	RateLimiter        RateLimiter   // Rate limiter, optional.
-	WindowSize         uint
+	WindowSize         uint          // Max number of in-flight requests. Zero means unlimited.
 
 	Transmitter
 }

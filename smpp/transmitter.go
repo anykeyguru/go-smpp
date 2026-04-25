@@ -36,12 +36,12 @@ type Transmitter struct {
 	Passwd             string        // Password.
 	SystemType         string        // System type, default empty.
 	EnquireLink        time.Duration // Enquire link interval, default 10s.
-	EnquireLinkTimeout time.Duration // Time after last EnquireLink response when connection considered down
+	EnquireLinkTimeout time.Duration // Max time without an EnquireLink response before the connection is considered down.
 	RespTimeout        time.Duration // Response timeout, default 1s.
-	BindInterval       time.Duration // Binding retry interval
+	BindInterval       time.Duration // Bind retry interval. If zero, an exponential backoff is used.
 	TLS                *tls.Config   // TLS client settings, optional.
 	RateLimiter        RateLimiter   // Rate limiter, optional.
-	WindowSize         uint
+	WindowSize         uint          // Max number of in-flight requests. Zero means unlimited.
 	rMutex             sync.Mutex
 	r                  *rand.Rand
 
@@ -112,7 +112,9 @@ func (t *Transmitter) bindFunc(c Conn) error {
 	return nil
 }
 
-// f is only set on transceiver.
+// handlePDU dispatches incoming PDUs to in-flight requesters. The
+// HandlerFunc f is only set on a Transceiver, where unsolicited PDUs
+// (e.g. deliver_sm) need to be handed to the user.
 func (t *Transmitter) handlePDU(f HandlerFunc) {
 	for {
 		p, err := t.cl.Read()
@@ -186,16 +188,19 @@ func newUnsucessDest(p pdufield.UnSme) UnsucessDest {
 // the Transmitter. When returned from Submit, the ShortMessage
 // provides Resp and RespID.
 type ShortMessage struct {
-	Src      string
-	Dst      string
-	DstList  []string // List of destination addreses for submit multi
-	DLs      []string //List if destribution list for submit multi
-	Text     pdutext.Codec
-	Validity         time.Duration
-	RelativeValidity bool // Use relative format (000000HHMMSS000R) instead of absolute.
-	Register pdufield.DeliverySetting
-
-	// Other fields, normally optional.
+	Src     string
+	Dst     string
+	DstList []string // Destination SME addresses, for submit_multi.
+	DLs     []string // Distribution list names, for submit_multi.
+	Text    pdutext.Codec
+	// Validity is the time-to-live of the message. Encoded as the
+	// validity_period PDU field. If zero, the field is omitted.
+	Validity time.Duration
+	// RelativeValidity, when true, encodes Validity using the SMPP
+	// relative format (000000HHMMSS000R) instead of an absolute UTC
+	// timestamp.
+	RelativeValidity     bool
+	Register             pdufield.DeliverySetting
 	TLVFields            pdutlv.Fields
 	ServiceType          string
 	SourceAddrTON        uint8
@@ -343,8 +348,8 @@ func (t *Transmitter) do(p pdu.Body) (*tx, error) {
 	}
 }
 
-// Submit sends a short message and returns and updates the given
-// sm with the response status. It returns the same sm object.
+// Submit sends a short message, updates the given sm with the
+// response status, and returns the same sm object.
 func (t *Transmitter) Submit(sm *ShortMessage) (*ShortMessage, error) {
 	if len(sm.DstList) > 0 || len(sm.DLs) > 0 {
 		// if we have a single destination address add it to the list

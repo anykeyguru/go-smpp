@@ -28,9 +28,9 @@ var (
 // that is called when client PDU messages arrive.
 type HandlerFunc func(c Conn, m pdu.Body)
 
-// Server is an SMPP server for testing purposes. By default it authenticate
-// clients with the configured credentials, and echoes any other PDUs
-// back to the client.
+// Server is an SMPP server for testing purposes. By default it
+// authenticates clients with the configured credentials, and echoes any
+// other PDUs back to the client.
 type Server struct {
 	User    string
 	Passwd  string

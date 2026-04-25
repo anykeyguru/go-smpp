@@ -9,6 +9,7 @@ import (
 	"bytes"
 	"io"
 	"net"
+	"sync"
 
 	"github.com/fiorix/go-smpp/v2/smpp/pdu"
 )
@@ -25,11 +26,15 @@ type Conn interface {
 	RemoteAddr() net.Addr
 }
 
-// conn provides the basics of an SMPP connection.
+// conn provides the basics of an SMPP connection. Writes are serialized
+// by wmu so that concurrent callers (the accept-handler thread and any
+// caller of Server.BroadcastMessage) cannot interleave on the buffered
+// writer.
 type conn struct {
 	rwc net.Conn
 	r   *bufio.Reader
 	w   *bufio.Writer
+	wmu sync.Mutex
 }
 
 func newConn(c net.Conn) *conn {
@@ -53,12 +58,12 @@ func (c *conn) Read() (pdu.Body, error) {
 // Write implements the Conn interface.
 func (c *conn) Write(p pdu.Body) error {
 	var b bytes.Buffer
-	err := p.SerializeTo(&b)
-	if err != nil {
+	if err := p.SerializeTo(&b); err != nil {
 		return err
 	}
-	_, err = io.Copy(c.w, &b)
-	if err != nil {
+	c.wmu.Lock()
+	defer c.wmu.Unlock()
+	if _, err := io.Copy(c.w, &b); err != nil {
 		return err
 	}
 	return c.w.Flush()

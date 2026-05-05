@@ -10,7 +10,7 @@ import (
 	"strconv"
 	"testing"
 
-	"github.com/fiorix/go-smpp/v2/smpp/pdu/pdufield"
+	"github.com/anykeyguru/go-smpp/smpp/pdu/pdufield"
 )
 
 func TestBind(t *testing.T) {

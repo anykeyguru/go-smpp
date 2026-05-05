@@ -15,10 +15,10 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/fiorix/go-smpp/v2/smpp/pdu"
-	"github.com/fiorix/go-smpp/v2/smpp/pdu/pdufield"
-	"github.com/fiorix/go-smpp/v2/smpp/pdu/pdutext"
-	"github.com/fiorix/go-smpp/v2/smpp/pdu/pdutlv"
+	"github.com/anykeyguru/go-smpp/smpp/pdu"
+	"github.com/anykeyguru/go-smpp/smpp/pdu/pdufield"
+	"github.com/anykeyguru/go-smpp/smpp/pdu/pdutext"
+	"github.com/anykeyguru/go-smpp/smpp/pdu/pdutlv"
 )
 
 // ErrMaxWindowSize is returned when an operation (such as Submit) violates

@@ -11,7 +11,7 @@ import (
 	"net"
 	"sync"
 
-	"github.com/fiorix/go-smpp/v2/smpp/pdu"
+	"github.com/anykeyguru/go-smpp/smpp/pdu"
 )
 
 // Conn implements a server side connection.

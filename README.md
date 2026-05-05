@@ -12,6 +12,38 @@ as a test server (see smpptest package) and text codecs for GSM
 
 It is not fully compliant, there are some TODOs in the code.
 
+## Fork Status (`anykeyguru/go-smpp`)
+
+This is a fork maintained for use in `github.com/uniqubiclabs/sms-sender-proxy` to ensure stability and reduce dependency on upstream activity.
+
+**Current baseline:** [fiorix/go-smpp v2.1.0](https://github.com/fiorix/go-smpp/releases/tag/v2.1.0) (commit `ed8e77a`, 2024-04-25)  
+**Module path:** `github.com/anykeyguru/go-smpp` (preserves proxy imports)  
+**Latest release tag:** `v0.0.0-anykeyguru-3` ([2026-05-05](#fork-status-anykeyguru))
+
+**Custom patches:** None. All 4 pre-fork commits were analyzed and found to be:
+- `a82a321` (inflight key ID+Seq) — merged upstream
+- `2371f8a` (nil pdu in receiver) — covered by upstream `485b585`
+- `dfa42de` (drop DeliverSM fields) — dropped (upstream standard struct preferred)
+- `fe1b3c7` (test compiler) — merged upstream
+
+### Notable upstream changes included in v0.0.0-anykeyguru-3
+
+- **485b585:** Multi-part deliver_sm reassembly fix + receiver/test races
+- **d32396c:** pdufield.Variable.Bytes/Len no longer mutate caller data; Receiver-without-Handler deadlock fix
+- **ed8e77a:** CancelSM, ReplaceSM, AlertNotification, Outbind, SubmitData PDU; pdufield.ParseDeliveryReceipt; auto-ack server unbind
+- **dddee11:** GSM7Packed '@' vs padding zeros fix
+- **240ce56:** ShortMessage mutex copy fix (go vet)
+
+No breaking changes affecting proxy. See `sms-sender-proxy` CLAUDE.md for integration notes.
+
+### Next sync procedure
+
+1. `git fetch https://github.com/fiorix/go-smpp <new-tag>`
+2. `git reset --hard FETCH_HEAD`
+3. Rewrite `module github.com/fiorix/go-smpp/v2 -> github.com/anykeyguru/go-smpp` in `go.mod` and all `*.go`
+4. `go mod tidy && go test ./...`
+5. Tag as `v0.0.0-anykeyguru-N` and push
+
 ## Usage
 
 Following is an SMPP client transmitter wrapped by an HTTP server
